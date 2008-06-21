@@ -78,3 +78,10 @@ let array_map2 f a1 a2 =
 		done;
 		r
 	)
+
+let learn_random_base pct rate base =
+	iter_random
+		(fun (i, d) -> pct#learn rate i d)
+		base
+
+		
