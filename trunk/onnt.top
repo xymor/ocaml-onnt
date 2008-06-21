@@ -1,0 +1,2 @@
+#!/bin/sh
+ocaml -I _build onnt.cma
