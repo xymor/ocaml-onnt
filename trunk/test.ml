@@ -7,7 +7,7 @@ let (|>) x f = f x
 
 (*Testing adaline (see learnsc32.pdf)*)
 let adaline_test () =
-	let adaline = Adaline.newInit 3 1 (fun i j -> 0.) (fun i -> 0.) in
+	let adaline = Adaline.create 3 1 0. 0. in
 	let inputs = [|
 		[|1.;1.;1.|];
 		[|1.;1.;-1.|];
@@ -41,7 +41,7 @@ let print_result pct a b =
     printf "%d, %d : %3.2f\n" a b output
 
 let xor_sigmoidMlPerceptron_test () =
-    let pct = SigmoidMlPerceptron.newRandom 2 1 [| 2; 2; 1 |] 1. 1. in
+    let pct = SigmoidMlPerceptron.random 2 1 [| 2; 2; 1 |] 1. 1. in
     let learn_base = [|
 	[| 1.; 1.|], [| 0.|];
 	[| 1.; 0.|], [| 1.|];
@@ -59,7 +59,10 @@ let xor_sigmoidMlPerceptron_test () =
     print_result pct 0 0
 
 let _ =
-  match Sys.argv.(1) with
-    | "1" -> adaline_test ()
-    | "2" -> xor_sigmoidMlPerceptron_test ()
-    | _ -> raise No_test
+    if Array.length Sys.argv = 1 then
+	printf "Specify a test : adaline, xor\n"
+    else
+	match Sys.argv.(1) with
+	    | "adaline" -> adaline_test ()
+	    | "xor" -> xor_sigmoidMlPerceptron_test ()
+	    | _ -> raise No_test
