@@ -1,0 +1,39 @@
+Ocaml Neural Network Toolkit
+============================
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3.0 of the License, or (at your option) any later version,,
+ * with the special exception on linking described in file LICENSE.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ 
+Installation :
+--------------
+To compile the native and bytecode library, run
+> make all
+This compiles the files onnt.cma and onnt.cmxa in the _build directory.
+Later, we will use the findlib system to make it easy to link to this library.
+Do not forget, this is the first release...
+
+Usage :
+-------
+The documentation is in the doc directory.
+To generate it, create the onnt.docdir directory by running :
+> make doc
+
+License :
+---------
+See LICENSE
+
+Author :
+--------
+Jean-Denis Koeck
+(anocka at gmail dot com)
