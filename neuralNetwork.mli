@@ -59,3 +59,10 @@ val string_of_weights : float Matrix.matrix -> string
 
 val iter_random : ('a -> unit) -> ('a array) -> unit
 val array_map2 : ('a -> 'b -> 'c) -> ('a array ) -> ('b array) -> ('c array)
+
+val learn_random_base :
+  < learn : float -> float array -> float array -> unit; .. > -> float -> (float array * float array) array -> unit
+(** [learn_random_base pct rate base]
+	base is an array of tuples : (input, desired output)
+	pct is a perceptron object
+	Learning process of pct on the learning base in random order*)
