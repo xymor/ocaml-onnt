@@ -1,0 +1,7 @@
+<**/*.native>: pkg_extlib, use_unix
+<**/*.byte>: pkg_extlib, use_unix
+
+<**/*.ml>: pkg_extlib, use_unix
+
+<**/*.cmx>: inline(1000)
+<**/*.cmxa>: inline(1000)
