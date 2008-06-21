@@ -17,10 +17,20 @@ type vector = float array
 type layer = { weights : float Matrix.matrix; bias : vector; }
 (**Implements a neurons layer *)
 
+type threshold = {
+	f : float -> float;
+	d : float -> float;
+}
+
+type activation =
+	  Linear | Sigmoid
+	| Custom of threshold
+
+
 class virtual neuralNetwork :
   int ->
   int ->
-  object
+  object ('a)
     val input_size : int
     val output_size : int
     method checkInputSize : float array -> unit
@@ -32,6 +42,10 @@ class virtual neuralNetwork :
 	(**@return expected size of an input vector*)
     method getOutputSize : int
 	(**@return size of the output vector*)
+	method virtual feed : float array -> float array
+	method virtual print : unit -> unit
+	method virtual toString : unit -> string
+	method virtual writeFile : ?comment:string -> string -> unit
   end
 
 (** [new neuralNetwork input_size output_size]
@@ -42,3 +56,6 @@ val string_of_array : float array -> string
 
 val string_of_weights : float Matrix.matrix -> string
 (**@return string representation of a matrix of weights in order to write a file*) 
+
+val iter_random : ('a -> unit) -> ('a array) -> unit
+val array_map2 : ('a -> 'b -> 'c) -> ('a array ) -> ('b array) -> ('c array)

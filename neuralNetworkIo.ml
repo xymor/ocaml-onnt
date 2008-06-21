@@ -1,12 +1,13 @@
 open NeuralNetwork
 open MlPerceptron
+open Adaline
 open SigmoidMlPerceptron
 open Matrix
 
 exception Wrong_type
 exception Wrong_function
 
-type networkType = MlPerceptron | SigmoidMlPerceptron
+type networkType = MlPerceptron | SigmoidMlPerceptron | Adaline
 
 module String =
 struct
@@ -30,12 +31,13 @@ let read_network_type s =
 	match s with
 		| "MlPerceptron" ->	MlPerceptron
 		| "SigmoidMlPerceptron" -> SigmoidMlPerceptron
+		| "Adaline" -> Adaline
 		| _ -> raise Wrong_type
 
-let read_function_deriv s =
+let read_activation s =
 	match s with
-		| "linear" -> ( (fun x -> x), (fun x -> 1.) )
-		| "sigmoid" -> (sigmoid, sigmoid')
+		| "linear" -> Linear
+		| "sigmoid" -> Sigmoid
 		| _ -> raise Wrong_function
 
 (*READING A FILE*)
@@ -62,24 +64,37 @@ let openFile file =
 		else line in
 	
 	let first_line = new_line () in
-	let network_type = read_network_type (get_value first_line) in
-	let input = int_of_string (get_value (new_line ())) in
-	let output = int_of_string (get_value (new_line ())) in
-	let layers_nb = int_of_string (get_value (new_line ())) in
+	let network_type = read_network_type first_line in
+	let input = int_of_string (new_line ()) in
+	let output = int_of_string (new_line ()) in
+	let layers_nb = int_of_string (new_line ()) in
 	let weights =
 		Array.init layers_nb (fun _ -> new_line())
-		|> Array.map get_value
 		|> Array.map weights_of_string in
 	let bias =
 		Array.init layers_nb (fun _ -> new_line())
-		|> Array.map get_value
 		|> Array.map bias_of_string in
+	
+	(*
+	let activation = read_activation (new_line ()) in
 	close_in channel;
+	match activation with
+		| Sigmoid ->
+			new sigmoidMlPerceptron input output weights bias
+		| Linear ->
+			if (Array.length weights) = 1 then
+				new adaline input output weights.(0) bias.(0)
+			else
+				new mlPerceptron input output weights bias Linear
+		| Custom _ -> raise Wrong_function*)
+	
 	match network_type with
 		| SigmoidMlPerceptron ->
 			  close_in channel;
 			  new sigmoidMlPerceptron input output weights bias
 		| MlPerceptron ->
-			  let (f,deriv) = read_function_deriv (get_value(new_line ())) in
-				  close_in channel;
-			  new mlPerceptron input output weights bias f deriv
+			let activation = read_activation (new_line ()) in
+			close_in channel;
+			new mlPerceptron input output weights bias activation
+		| Adaline ->
+			new adaline input output weights.(0) bias.(0)

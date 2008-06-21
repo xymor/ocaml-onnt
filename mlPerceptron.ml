@@ -13,16 +13,24 @@ let feed_and_sum_layer f input layer =
 	let sum = (FloatMatrix.mul_vect layer.weights input) -| layer.bias in
 	(sum, Array.map f sum)
 
-class mlPerceptron input_size output_size init_weights init_biases init_f init_deriv =
+class mlPerceptron input_size output_size init_weights init_biases activation =
 	object (self)
 	inherit neuralNetwork input_size output_size as network
 	
 		val layers_nb =
 			Array.length init_weights
 		
-		val f = init_f
-		val deriv = init_deriv
-
+		val threshold = match activation with
+			| Linear ->
+				{ f = (fun x -> x); d = (fun x -> 1.) }
+			| Sigmoid ->
+				let f x = 1. /. (1. +. exp(-. x)) in
+				{ f = f;
+				  d = (fun x -> f(x) *. (1. -. f(x)));
+				}
+			| Custom(activation) ->
+				activation
+		
 		val layers =
 			let layers_nb = Array.length init_weights in
 			let init_layer i =
@@ -51,15 +59,15 @@ class mlPerceptron input_size output_size init_weights init_biases init_f init_d
 		
 		method feed input =
 			self#checkInputSize input;
-			Array.fold_left (feed_layer f) input layers
+			Array.fold_left (feed_layer threshold.f) input layers
 		
-		method feedLayersResults input =
+		method private feedLayersResults input =
 			network#checkInputSize input;
 			(*let results = Array.unfoldi layers_nb (fun i a -> feed_layer f a layers.(i)) input*)
 			let results = Array.create layers_nb [||] in
 			let temp = ref input in
 			for i=0 to layers_nb - 1 do
-				temp := feed_layer f !temp layers.(i);
+				temp := feed_layer threshold.f !temp layers.(i);
 				results.(i) <- !temp
 			done;
 			results
@@ -70,14 +78,14 @@ class mlPerceptron input_size output_size init_weights init_biases init_f init_d
 			let results = Array.create layers_nb [||] in
 			let temp = ref input in
 			for i=0 to layers_nb - 1 do
-				let (sum,result) = feed_and_sum_layer f !temp layers.(i) in
+				let (sum,result) = feed_and_sum_layer threshold.f !temp layers.(i) in
 				sums.(i) <- sum;
 				results.(i) <- result;
 				temp := result
 			done;
 			(sums,results)
 		
-		method getResultsErrors input desired =
+		method private getResultsErrors input desired =
 			printf "get_errors\n";
 			printf "output_size : %d\n" output_size;
 			printf "size of results : %d\n" (Array.length (self#feedLayersResults input));
@@ -90,7 +98,7 @@ class mlPerceptron input_size output_size init_weights init_biases init_f init_d
 			printf "Error on the input layer\n";
 			errors.(layers_nb-1) <- Array.init output_size
 				(fun i ->
-					(desired.(i) -. output.(i)) *. deriv(output_sum.(i)));
+					(desired.(i) -. output.(i)) *. threshold.d(output_sum.(i)));
 				
 			(*Errors computation*)
 			for index=2 to layers_nb do
@@ -103,7 +111,7 @@ class mlPerceptron input_size output_size init_weights init_biases init_f init_d
 						for j=0 to (Matrix.col_dim weights) - 1 do
 							error := !error +. (Matrix.get weights j i) *. errors.(k+1).(j)
 						done;
-						error := !error *. (deriv sums.(k).(i));
+						error := !error *. (threshold.d sums.(k).(i));
 						!error)
 			done;
 			
@@ -135,37 +143,37 @@ class mlPerceptron input_size output_size init_weights init_biases init_f init_d
 		method writeFile ?(comment="") file_name =
 			let channel = open_out file_name in
 			if comment <> "" then fprintf channel "#%s\n" comment; 
-			fprintf channel "type:MlPerceptron\n";
-			fprintf channel "input:%d\n" input_size;
-			fprintf channel "output:%d\n" output_size;
-			fprintf channel "layers:%d\n" layers_nb;
+			fprintf channel "MlPerceptron\n";
+			fprintf channel "%d\n" input_size;
+			fprintf channel "%d\n" output_size;
+			fprintf channel "%d\n" layers_nb;
 			for i=0 to layers_nb - 1 do
-				fprintf channel "weights%d:%s\n" (i+1) (string_of_weights layers.(i).weights)
+				fprintf channel "%s\n" (string_of_weights layers.(i).weights)
 			done;
 			for i=0 to layers_nb - 1 do
-				fprintf channel "bias%d:%s\n" (i+1) (string_of_array layers.(i).bias)
+				fprintf channel "%s\n" (string_of_array layers.(i).bias)
 			done;
-			fprintf channel "function:linear";
+			fprintf channel "linear";
 			close_out channel
 	end
 
 type t = mlPerceptron
 
-let newSameValues input_size output_size (layers_sizes : int array) weights_value bias_value f deriv =
+let create input_size output_size (layers_sizes : int array) weight bias activation =
 	let layers_nb = Array.length layers_sizes in
 	if layers_sizes.(layers_nb - 1) <> output_size then
 		(raise Wrong_init_sizes);
 	let init_weights i =
 		let hidden_size = if i=0 then input_size else layers_sizes.(i-1) in
-		FloatMatrix.create layers_sizes.(i) hidden_size weights_value in
+		FloatMatrix.create layers_sizes.(i) hidden_size weight in
     let init_bias i =
-		Array.create layers_sizes.(i) bias_value in
+		Array.create layers_sizes.(i) bias in
 	let weights = Array.init layers_nb init_weights in
 	let biases = Array.init layers_nb init_bias in
-	let perceptron = new mlPerceptron input_size output_size weights biases f deriv in
+	let perceptron = new mlPerceptron input_size output_size weights biases activation in
 	perceptron
  
-let newRandom input_size output_size (layers_sizes : int array) weights_range bias_range f deriv =
+let random input_size output_size (layers_sizes : int array) weights_range bias_range activation =
 	Random.self_init ();
 	let init_bias i =
 		let value = Random.float bias_range in
@@ -180,5 +188,5 @@ let newRandom input_size output_size (layers_sizes : int array) weights_range bi
 		Array.init layers_sizes.(i) init_bias in
 	let weights = Array.init layers_nb init_weights in
 	let biases = Array.init layers_nb init_bias in
-	let perceptron = new mlPerceptron input_size output_size weights biases f deriv in
+	let perceptron = new mlPerceptron input_size output_size weights biases activation in
 	perceptron
