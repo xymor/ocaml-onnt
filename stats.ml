@@ -1,7 +1,7 @@
 open ExtLib
 
 (*
-Implements various functions in order top facilitate the statistical analysis of a neural network
+Implements various functions in order to facilitate the statistical analysis of a neural network
 *)
 
 let (|>) x f = f x
@@ -18,8 +18,8 @@ let mean a =
 	let len = float_of_int (Array.length a) in
 	(Array.fold_left (+.) 0. a) /. len
 
-let mean_error results desired =
-	mean (results -| desired)
+let mean_error desired results =
+	mean (desired -| results)
 
 let mk_perc n len =
 	100. *. float_of_int(n) /. float_of_int(len)
@@ -28,12 +28,6 @@ let check_size a1 a2 =
 	if (Array.length a1) <> (Array.length a2) then 
 		raise Wrong_size
 	else Array.length a1
-
-(*let mk_succs2 eval2 results desired : succs2 =
-	Array.map2 eval2 results desired
-
-let mk_succs3 eval3 results desired : succs3 =
-	Array.map2 eval3 results desired*)
 
 let count_cond cond a =
 	Array.fold_left (fun acc x -> if cond x then acc + 1 else acc) 0 a
