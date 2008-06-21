@@ -35,12 +35,12 @@ class adaline input_size output_size weights bias =
 			printf "bias : %s\n" (Vector.float_to_string bias)
 		
 		method toString () =
-			let out = IO.output_string () in
-			IO.printf out "Adaline perceptron\n";
-			IO.printf out "input_size = %d, output_size = %d\n" input_size output_size;
-			IO.printf out "weights : \n%s" (FloatMatrix.to_string weights);
-			IO.printf out "bias : %s\n" (Vector.float_to_string bias);
-			IO.close_out out
+			let b = Buffer.create 80 in
+			bprintf b "Adaline perceptron\n";
+			bprintf b "input_size = %d, output_size = %d\n" input_size output_size;
+			bprintf b "weights : \n%s" (FloatMatrix.to_string weights);
+			bprintf b "bias : %s\n" (Vector.float_to_string bias);
+			Buffer.contents b
 			
 		method copy () =
 			let new_weights = FloatMatrix.copy weights in

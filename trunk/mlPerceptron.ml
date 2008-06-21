@@ -48,14 +48,14 @@ class mlPerceptron input_size output_size init_weights init_biases activation =
 			done
 		
 		method toString () =
-			let out = IO.output_string () in
-			IO.printf out "Multilayer perceptron : %d layers\n" layers_nb;
-			IO.printf out "input_size = %d, output_size = %d\n" input_size output_size;
+			let b = Buffer.create 80 in
+			bprintf b "Multilayer perceptron : %d layers\n" layers_nb;
+			bprintf b "input_size = %d, output_size = %d\n" input_size output_size;
 			for i=0 to layers_nb - 1 do
-				IO.printf out "Layer %d weights : \n%s" (i+1) (FloatMatrix.to_string layers.(i).weights);
-				IO.printf out "bias : %s\n" (Vector.float_to_string layers.(i).bias)
+				bprintf b "Layer %d weights : \n%s" (i+1) (FloatMatrix.to_string layers.(i).weights);
+				bprintf b "bias : %s\n" (Vector.float_to_string layers.(i).bias)
 			done;
-			IO.close_out out
+			Buffer.contents b
 		
 		method feed input =
 			self#checkInputSize input;
