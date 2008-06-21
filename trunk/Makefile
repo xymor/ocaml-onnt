@@ -1,6 +1,16 @@
 OCAMLBUILD = ocamlbuild
+TARGET = onnt
 
-onnt: 
-	$(OCAMLBUILD) onnt.otarget
+all: byte native doc
+
+native: 
+	$(OCAMLBUILD) $(TARGET).cmxa
+
+byte:
+	$(OCAMLBUILD) $(TARGET).cma
+
+doc:
+	$(OCAMLBUILD) $(TARGET).docdir/index.html
+
 clean:
-	$(OCAMLBUILD) ocamlbuild -clean
+	$(OCAMLBUILD) -clean
