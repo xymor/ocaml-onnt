@@ -62,7 +62,7 @@ class sigmoidMlPerceptron input_size output_size init_weights init_biases =
 			self#checkInputSize input;
 			Array.fold_left feed_layer input layers
 		
-		method feedLayersResults input =
+		method private feedLayersResults input =
 			network#checkInputSize input;
 			let results = Array.create layers_nb [||] in
 			let temp = ref input in
@@ -72,7 +72,7 @@ class sigmoidMlPerceptron input_size output_size init_weights init_biases =
 			done;
 			results
 		
-		method getResultsErrors input desired =
+		method private getResultsErrors input desired =
 			let results = self#feedLayersResults input in
 			let output = results.(layers_nb - 1) in
 			let errors = Array.create layers_nb [||] in
@@ -122,22 +122,23 @@ class sigmoidMlPerceptron input_size output_size init_weights init_biases =
 		method writeFile ?(comment="") file_name =
 			let channel = open_out file_name in
 			if comment <> "" then fprintf channel "#%s\n" comment; 
-			fprintf channel "type:SigmoidMlPerceptron\n";
-			fprintf channel "input:%d\n" input_size;
-			fprintf channel "output:%d\n" output_size;
-			fprintf channel "layers:%d\n" layers_nb;
+			fprintf channel "SigmoidMlPerceptron\n";
+			fprintf channel "%d\n" input_size;
+			fprintf channel "%d\n" output_size;
+			fprintf channel "%d\n" layers_nb;
 			for i=0 to layers_nb - 1 do
-				fprintf channel "weights%d:%s\n" (i+1) (string_of_weights layers.(i).weights)
+				fprintf channel "%s\n" (string_of_weights layers.(i).weights)
 			done;
 			for i=0 to layers_nb - 1 do
-				fprintf channel "bias%d:%s\n" (i+1) (string_of_array layers.(i).bias)
+				fprintf channel "%s\n" (string_of_array layers.(i).bias)
 			done;
+			fprintf channel "sigmoid";
 			close_out channel
 		end
 
 type t = sigmoidMlPerceptron
 
-let newSameValues input_size output_size (layers_sizes : int array) weights_value
+let create input_size output_size (layers_sizes : int array) weights_value
 bias_value =
 	let layers_nb = Array.length layers_sizes in
 	if layers_sizes.(layers_nb - 1) <> output_size then
@@ -152,7 +153,7 @@ bias_value =
 	let perceptron = new sigmoidMlPerceptron input_size output_size weights biases in
 	perceptron
 
-let newRandom input_size output_size (layers_sizes : int array) weights_range
+let random input_size output_size (layers_sizes : int array) weights_range
 bias_range =
 	Random.self_init ();
 	let init_bias i =

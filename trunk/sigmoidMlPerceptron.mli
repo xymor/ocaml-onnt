@@ -41,16 +41,17 @@ class sigmoidMlPerceptron :
     (** [feed input ]
 	processes the input values, returns the output *)
 	
-    method feedLayersResults : float array -> float array array
+    (*method feedLayersResults : float array -> float array array
     (** [feed input]
 	processes the input values
-	@return successive results of each layers (last element is the output)*)
+	@return successive results of each layers (last element is the output)*)*)
 	
     method getInputSize : int
     method getLayersNb : unit -> int
     method getOutputSize : int
-    method getResultsErrors :
-      float array -> float array -> float array array * float array array
+    
+	(*method getResultsErrors :
+      float array -> float array -> float array array * float array array*)
 	
     method learn : float -> float array -> float array -> unit
 	(** [learn learning_rate input desired]
@@ -66,14 +67,14 @@ class sigmoidMlPerceptron :
 
 type t = sigmoidMlPerceptron
 
-val newSameValues :
+val create :
   int -> int -> int array -> float -> float -> sigmoidMlPerceptron
 (** [newSameValues input_size output_size layers_sizes weight bias]
 	Initiates a sigmoid perceptron where
 		layers_sizes : array of the sizes of the successive layers
 	All weights are initialized to weight, all biases to bias*)
 
-val newRandom :
+val random :
   int -> int -> int array -> float -> float -> sigmoidMlPerceptron
 (** [newRandom input_size output_size layers_sizes weight_range bias_range]
 	Initiates a sigmoid perceptron where

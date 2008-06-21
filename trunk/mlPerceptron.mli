@@ -14,14 +14,11 @@ val feed_and_sum_layer : (float -> float) -> float array -> NeuralNetwork.layer 
 		  output : array of the output values*)
 
 class mlPerceptron :
-int -> int -> float Matrix.matrix array -> NeuralNetwork.vector array -> (float -> float) -> (float -> float) ->
+int -> int -> float Matrix.matrix array -> NeuralNetwork.vector array -> NeuralNetwork.activation ->
 	object ('a)
 	
-	val deriv : float -> float
-	(** derivative of the threshold function *)
-	
-	val f : float -> float
-	(** threshold function*)
+	val threshold : NeuralNetwork.threshold
+	(** Record containing the threshold function and its derivative*)
 
 	val input_size : int
 	val layers : NeuralNetwork.layer array
@@ -33,16 +30,17 @@ int -> int -> float Matrix.matrix array -> NeuralNetwork.vector array -> (float 
 	method feed : float array -> float array
 	(** processes the input values, returns the output *)
 	
-	method feedLayersResults : float array -> float array array
-	(** processes the input values, returns the successive results of the layers *)
+	(*method feedLayersResults : float array -> float array array
+	(** processes the input values, returns the successive results of the layers *)*)
 	
 	method private feedLayersSumsResults :
 		float array -> float array array * float array array
 	method getInputSize : int
 	method getLayersNb : unit -> int
 	method getOutputSize : int
-	method getResultsErrors :
-		float array -> float array -> float array array * float array array
+	
+	(*method getResultsErrors :
+		float array -> float array -> float array array * float array array*)
 
 	method learn : float -> float array -> float array -> unit
 	method print : unit -> unit
@@ -53,15 +51,15 @@ end
 				
 type t = mlPerceptron
 				
-val newSameValues :
-int ->	int -> int array ->	float -> float -> (float -> float) -> (float -> float) -> mlPerceptron
-(** [newSameValues input_size output_size layers_sizes weight bias]
+val create :
+int ->	int -> int array ->	float -> float -> NeuralNetwork.activation -> mlPerceptron
+(** [create input_size output_size layers_sizes weight bias activation]
 	Initiates a sigmoid perceptron where
 		layers_sizes : array of the sizes of the successive layers
 	All weights are initialized to weight, all biases to bias*)
 	
-val newRandom :
-int -> int -> int array -> float -> float -> (float -> float) -> (float -> float) -> mlPerceptron
+val random :
+int -> int -> int array -> float -> float -> NeuralNetwork.activation -> mlPerceptron
 (** [newRandom input_size output_size layers_sizes weight_range bias_range]
 	Initiates a sigmoid perceptron where
 		layers_sizes : array of the sizes of the successive layers

@@ -35,50 +35,31 @@ let adaline_test () =
 			printf "\n")
 		inputs desired
 
-let ml_perceptron_test () =
-    let perceptron = SigmoidMlPerceptron.newSameValues 2 1 [|3;1|] 0. 0. in
-    let vec_of_ints a b =
-        [|a;b|] |> Array.map float_of_int in
-    let print_result a b =
-        let input = vec_of_ints a b in
-        let output = (perceptron#feed input).(0) in
-        printf "%d, %d : %3.2f\n" a b output in
-    for i=0 to 1000 do
-        perceptron#learn 0.1 [|1.;1.|] [|0.|];
-        perceptron#learn 0.1 [|0.;0.|] [|0.|];
-        perceptron#learn 0.1 [|1.;0.|] [|1.|];
-        perceptron#learn 0.1 [|0.;1.|] [|1.|];
-        print_result 0 0;
-        print_result 1 0;
-        print_result 0 1;
-        print_result 1 1
-    done;
-    perceptron#print()
+let print_result pct a b =
+    let input = [|a;b|] |> Array.map float_of_int in
+    let output = (pct#feed input).(0) in
+    printf "%d, %d : %3.2f\n" a b output
 
-let xor_random_sigmoidMlPerceptron_test () =
-    let perceptron = SigmoidMlPerceptron.newRandom 2 1 [| 3; 3; 1 |] 1. 1. in
-    perceptron#print();
-    let vec_of_ints a b =
-        [|a;b|] |> Array.map float_of_int in
-    let print_result a b =
-        let input = vec_of_ints a b in
-        let output = (perceptron#feed input).(0) in
-        printf "%d, %d : %3.2f\n" a b output in
-    for i = 1 to 100000 do
-        perceptron#learn 0.001 [| 1.; 1.|] [| 0.|];
-        perceptron#learn 0.001 [| 0.; 0.|] [| 0.|];
-        perceptron#learn 0.001 [| 1.; 0.|] [| 1.|];
-        perceptron#learn 0.001 [| 0.; 1.|] [| 1.|]
+let xor_sigmoidMlPerceptron_test () =
+    let pct = SigmoidMlPerceptron.newRandom 2 1 [| 2; 2; 1 |] 1. 1. in
+    let learn_base = [|
+	[| 1.; 1.|], [| 0.|];
+	[| 1.; 0.|], [| 1.|];
+	[| 0.; 1.|], [| 1.|];
+	[| 0.; 0.|], [| 0.|]
+    |] in
+    let learn rate (input, desired) =
+	pct#learn rate input desired in
+    for i = 1 to 5000 do
+	NeuralNetwork.iter_random (learn 0.5) learn_base
     done;
-    print_result 1 1;
-    print_result 1 0;
-    print_result 1 0;
-    print_result 0 1;
-    perceptron#print()
+    print_result pct 1 1;
+    print_result pct 1 0;
+    print_result pct 0 1;
+    print_result pct 0 0
 
 let _ =
   match Sys.argv.(1) with
     | "1" -> adaline_test ()
-    | "2" -> ml_perceptron_test ()
-    | "3" -> xor_random_sigmoidMlPerceptron_test ()
+    | "2" -> xor_sigmoidMlPerceptron_test ()
     | _ -> raise No_test
