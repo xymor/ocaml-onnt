@@ -1,7 +1,6 @@
 open NeuralNetwork
 open Printf
 open Matrix
-open ExtLib
 
 exception Wrong_input_size
 exception Wrong_init_sizes
@@ -34,7 +33,7 @@ class sigmoidMlPerceptron input_size output_size init_weights init_biases =
 			let init_layer i =
 				{ weights = init_weights.(i); bias = init_biases.(i) } in
 			Array.init layers_nb init_layer*)
-			Array.map2
+			array_map2
 				(fun w b -> { weights = w; bias = b})
 				init_weights init_biases
 		
@@ -49,14 +48,14 @@ class sigmoidMlPerceptron input_size output_size init_weights init_biases =
 			done
 		
 		method toString () =
-			let out = IO.output_string () in
-			IO.printf out "Sigmoid multilayer perceptron : %d layers\n" layers_nb;
-			IO.printf out "input_size = %d, output_size = %d\n" input_size output_size;
+			let b = Buffer.create 80 in
+			bprintf b "Sigmoid multilayer perceptron : %d layers\n" layers_nb;
+			bprintf b "input_size = %d, output_size = %d\n" input_size output_size;
 			for i=0 to layers_nb - 1 do
-				IO.printf out "Layer %d weights : \n%s" (i+1) (FloatMatrix.to_string layers.(i).weights);
-				IO.printf out "bias : %s\n" (Vector.float_to_string layers.(i).bias)
+				bprintf b "Layer %d weights : \n%s" (i+1) (FloatMatrix.to_string layers.(i).weights);
+				bprintf b "bias : %s\n" (Vector.float_to_string layers.(i).bias)
 			done;
-			IO.close_out out
+			Buffer.contents b
 			
 		method feed input =
 			self#checkInputSize input;
@@ -80,7 +79,7 @@ class sigmoidMlPerceptron input_size output_size init_weights init_biases =
 				(fun i ->
 					(desired.(i) -. output.(i)) *. sigderiv(output.(i)));*)
 			errors.(layers_nb-1) <-
-				Array.map2 (fun d o -> (d -. o) *. sigderiv(o)) desired output;
+				array_map2 (fun d o -> (d -. o) *. sigderiv(o)) desired output;
 			for index=2 to layers_nb do
 				let k = layers_nb - index in
 				let weights = layers.(k+1).weights in
