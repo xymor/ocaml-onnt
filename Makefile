@@ -1,7 +1,7 @@
 OCAMLBUILD = ocamlbuild
 TARGET = onnt
 
-all: byte top native doc
+all: byte native doc top
 
 native: 
 	$(OCAMLBUILD) $(TARGET).cmxa
