@@ -1,4 +1,5 @@
 OCAMLBUILD = ocamlbuild
+NAME = onnt
 TARGET = onnt
 
 all: byte native test
@@ -17,3 +18,6 @@ test:
 
 clean:
 	$(OCAMLBUILD) -clean
+
+install:
+	ocamlfind install $(NAME) *.mli _build/*.cmi _build/onnt.cma _build/onnt.cmxa META
