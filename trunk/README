@@ -18,14 +18,18 @@ Ocaml Neural Network Toolkit
 Dependencies :
 --------------
 Ocaml 3.10
+Findlib (ocaml library manager)
 
 Installation :
 --------------
 To compile the native and bytecode library, run
 > make all
 This compiles the files onnt.cma and onnt.cmxa in the _build directory.
-Later, we will use the findlib system to make it easy to link to this library.
-Do not forget, this is the first release...
+
+To install the files in the findlib system :
+> make install
+
+(If you want to reinstall the library, first type : ocamlfind remove onnt)
 
 Usage :
 -------
